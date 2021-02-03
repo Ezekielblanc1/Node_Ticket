@@ -1,6 +1,8 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Role = require("../models/Role");
+const roleFunc = require("../middleware/roleCheck");
 
 exports.signup = async (req, res) => {
   const { email, password } = req.body;
@@ -13,11 +15,26 @@ exports.signup = async (req, res) => {
       });
     }
     const hashedPassword = await bcrypt.hash(password, bcrypt.genSaltSync(12));
-    await User.create({ ...req.body, password: hashedPassword });
-    return res.status(200).json({
-      message: "User created successfully",
-      success: true,
-    });
+    const user = await User.create({ ...req.body, password: hashedPassword });
+    if (req.body.roles) {
+      const roles = await Role.find({
+        name: { $in: req.body.roles },
+      });
+      user.roles = roles.map((role) => role._id);
+      await user.save();
+      return res.status(200).json({
+        message: "User created successfully",
+        success: true,
+      });
+    } else {
+      const role = await Role.findOne({ name: "user" });
+      user.roles = [role._id];
+      await user.save();
+      return res.status(200).json({
+        message: "User created successfully",
+        success: true,
+      });
+    }
   } catch (error) {
     res.status(400).json({
       message: "Failed",
@@ -47,6 +64,6 @@ exports.login = async (req, res, next) => {
     );
     return res.status(200).send({ _id: user._id, token });
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
 };
