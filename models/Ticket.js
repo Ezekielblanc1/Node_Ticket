@@ -22,10 +22,24 @@ const ticketSchema = new mongoose.Schema(
       enum: ["DONE", "IN_PROGRESS", "NEW"],
       default: "NEW",
     },
+    replies: [mongoose.Schema.Types.ObjectId],
   },
   {
     timestamps: true,
   }
 );
 
-module.exports = mongoose.model("ticket", ticketSchema);
+const ticketCommentSchema = new mongoose.Schema({
+  senderId: mongoose.Schema.Types.ObjectId,
+  ticketId: mongoose.Schema.Types.ObjectId,
+  isUser: Boolean,
+  isSupport: Boolean,
+  messageBody: String,
+});
+
+const Ticket = mongoose.model("ticket", ticketSchema);
+const Ticket_comment = mongoose.model("ticket_comments", ticketCommentSchema);
+module.exports = {
+  Ticket,
+  Ticket_comment,
+};
