@@ -2,7 +2,7 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Role = require("../models/Role");
-const roleFunc = require("../middleware/roleCheck");
+
 
 exports.signup = async (req, res) => {
   const { email, password } = req.body;

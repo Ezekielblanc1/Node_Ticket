@@ -43,3 +43,17 @@ exports.replyTicket = async (req, res, next) => {
     .status(200)
     .json({ message: "ticket reply sent successfully", success: true });
 };
+
+exports.closeTicket = async (req, res, next) => {
+  const getTicket = await Ticket.findOne({ _id: req.params.ticketId });
+  if (!getTicket) {
+    return res
+      .status(404)
+      .json({ message: "ticket not found", success: false });
+  }
+  getTicket.status = "DONE";
+  await Ticket.save();
+  return res
+    .status(200)
+    .json({ message: "ticket closed successfully", success: true });
+};
