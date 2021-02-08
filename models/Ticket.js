@@ -19,10 +19,13 @@ const ticketSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["DONE", "IN_PROGRESS", "NEW"],
+      enum: ["CLOSE", "IN_PROGRESS", "NEW"],
       default: "NEW",
     },
-    replies: [mongoose.Schema.Types.ObjectId],
+    replies: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: 'ticket_comments'
+    },
   },
   {
     timestamps: true,
