@@ -1,6 +1,6 @@
 const router = require('express').Router()
 const { createCategory } = require('../controllers/ticketCategory')
-router.post('/', createCategory)
+router.post('/create', createCategory)
 
 
 module.exports = router

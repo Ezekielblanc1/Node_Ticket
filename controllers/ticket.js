@@ -19,7 +19,6 @@ exports.createTicket = async (req, res, next) => {
 };
 
 exports.replyTicket = async (req, res, next) => {
-
   //Check for an existing ticket
   const getTicket = await Ticket.findOne({
     _id: req.body.ticketId,
@@ -35,12 +34,10 @@ exports.replyTicket = async (req, res, next) => {
   const supportAdmin = await User.findOne({ _id: isSupportCheck._id });
 
   if (supportAdmin.accountType !== "support") {
-    return res
-      .status(401)
-      .json({
-        message: "You cannot comment on this ticket unless an admin does",
-        status: false,
-      });
+    return res.status(401).json({
+      message: "You cannot comment on this ticket unless an admin does",
+      status: false,
+    });
   }
   const checkUserOrSupport = await User.findOne({ _id: req._id });
   const ticketReply = await Ticket_comment.create({
@@ -71,4 +68,8 @@ exports.closeTicket = async (req, res, next) => {
   return res
     .status(200)
     .json({ message: "ticket closed successfully", success: true });
+};
+
+exports.getTicketReplies = async (req, res, next) => {
+  // const ticketRepl
 };

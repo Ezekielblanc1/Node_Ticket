@@ -3,11 +3,11 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Role = require("../models/Role");
 
-
 exports.signup = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, firstName, lastName, phone, accountType } = req.body;
+  let user;
   try {
-    const user = await User.findOne({ email });
+    user = await User.findOne({ email });
     if (user) {
       return res.status(400).json({
         message: "User already exists",
@@ -15,13 +15,21 @@ exports.signup = async (req, res) => {
       });
     }
     const hashedPassword = await bcrypt.hash(password, bcrypt.genSaltSync(12));
-    const user = await User.create({ ...req.body, password: hashedPassword });
+    user = await User.create({
+      password: hashedPassword,
+      firstName,
+      lastName,
+      phone,
+      accountType,
+      email
+    });
     if (req.body.roles) {
       const roles = await Role.find({
         name: { $in: req.body.roles },
       });
       user.roles = roles.map((role) => role._id);
       await user.save();
+
       return res.status(200).json({
         message: "User created successfully",
         success: true,
