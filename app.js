@@ -7,7 +7,7 @@ const userRoutes = require("./routes/user")
 const ticketRoute = require("./routes/ticket");
 const ticketCategoryRoute = require("./routes/ticketcategory");
 const roleRoute = require("./routes/roles")
-app.use("/", ticketRoute);
+app.use("/ticket", ticketRoute);
 app.use("/user", userRoutes)
 app.use("/category", ticketCategoryRoute);
 app.use('/role', roleRoute)

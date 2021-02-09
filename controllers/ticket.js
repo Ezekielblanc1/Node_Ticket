@@ -3,7 +3,9 @@ const TicketCategory = require("../models/TicketCategory");
 const User = require("../models/User");
 
 exports.createTicket = async (req, res, next) => {
-  const categoryType = await TicketCategory({ name: req.body.name });
+  const categoryType = await TicketCategory.findOne({
+    category: req.body.category,
+  });
   if (!categoryType) {
     return res
       .status(404)
@@ -20,40 +22,41 @@ exports.createTicket = async (req, res, next) => {
 
 exports.replyTicket = async (req, res, next) => {
   //Check for an existing ticket
-  const getTicket = await Ticket.findOne({
-    _id: req.body.ticketId,
-    $or: [{ status: "NEW" }, { status: "IN_PROGRESS" }],
-  }).populate("replies");
-
-  if (!getTicket) {
-    return res.status(404).json({ message: "Error fetching ticket" });
-  }
-
-  //Checks if the poster of the first comment is an admin
-  const isSupportCheck = getTicket.replies.map((reply) => reply.sender)[0];
-  const supportAdmin = await User.findOne({ _id: isSupportCheck._id });
-
-  if (supportAdmin.accountType !== "support") {
-    return res.status(401).json({
-      message: "You cannot comment on this ticket unless an admin does",
-      status: false,
+  try {
+    const getTicket = await Ticket.findOne({
+      _id: req.body.ticketId,
+      $or: [{ status: "NEW" }, { status: "IN_PROGRESS" }],
     });
-  }
-  const checkUserOrSupport = await User.findOne({ _id: req._id });
-  const ticketReply = await Ticket_comment.create({
-    sender: checkUserOrSupport._id,
-    ticketId: getTicket._id,
-    message: req.body.message,
-    isUser: checkUserOrSupport.accountType === "user",
-    isSupport: checkUserOrSupport.accountType === "support",
-  });
+    if (!getTicket) {
+      return res.status(404).json({ message: "Error fetching ticket" });
+    }
 
-  getTicket.replies = getTicket.push(ticketReply._id);
-  getTicket.status = "IN_PROGRESS";
-  await getTicket.save();
-  return res
-    .status(200)
-    .json({ message: "ticket reply sent successfully", success: true });
+    const checkUserOrSupport = await User.findOne({ _id: req._id });
+    const ticketReply = await Ticket_comment.create({
+      senderId: checkUserOrSupport._id,
+      ticketId: getTicket._id,
+      message: req.body.message,
+      isUser: checkUserOrSupport.accountType === "user",
+      isSupport: checkUserOrSupport.accountType === "support",
+    });
+
+    await Ticket.updateOne(
+      { _id: getTicket._id },
+      {
+        $push: {
+          replies: ticketReply._id,
+        },
+        $set: {
+          status: "IN_PROGRESS",
+        },
+      }
+    );
+    return res
+      .status(200)
+      .json({ message: "ticket reply sent successfully", success: true });
+  } catch (error) {
+    console.log(error.message);
+  }
 };
 
 exports.closeTicket = async (req, res, next) => {
@@ -71,5 +74,7 @@ exports.closeTicket = async (req, res, next) => {
 };
 
 exports.getTicketReplies = async (req, res, next) => {
-  // const ticketRepl
+  const ticket = await Ticket_comment.find({ticketId: req.params.ticketId})
+  console.log(ticket)
+  res.status(200).json({data: ticket})
 };

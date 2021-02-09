@@ -22,10 +22,12 @@ const ticketSchema = new mongoose.Schema(
       enum: ["CLOSE", "IN_PROGRESS", "NEW"],
       default: "NEW",
     },
-    replies: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: 'ticket_comments'
-    },
+    replies: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ticket_comments",
+      },
+    ],
   },
   {
     timestamps: true,
@@ -37,7 +39,7 @@ const ticketCommentSchema = new mongoose.Schema({
   ticketId: mongoose.Schema.Types.ObjectId,
   isUser: Boolean,
   isSupport: Boolean,
-  messageBody: String,
+  message: String,
 });
 
 const Ticket = mongoose.model("ticket", ticketSchema);
