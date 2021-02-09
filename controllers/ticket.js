@@ -36,7 +36,7 @@ exports.replyTicket = async (req, res, next) => {
       $or: [{ status: "NEW" }, { status: "IN_PROGRESS" }],
     });
     if (!getTicket) {
-      return res.status(404).json({ message: "Error fetching ticket" });
+      return res.status(404).json({ message: "Ticket not available" });
     }
 
     const checkUserOrSupport = await User.findOne({ _id: req._id });
