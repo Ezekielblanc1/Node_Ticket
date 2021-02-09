@@ -74,7 +74,12 @@ exports.closeTicket = async (req, res, next) => {
 };
 
 exports.getTicketReplies = async (req, res, next) => {
-  const ticket = await Ticket_comment.find({ticketId: req.params.ticketId})
-  console.log(ticket)
-  res.status(200).json({data: ticket})
+  try {
+    const ticket = await Ticket_comment.find({ ticketId: req.params.ticketId });
+    if (ticket) {
+      res.status(200).json({ data: ticket });
+    }
+  } catch (error) {
+    console.log(error);
+  }
 };
