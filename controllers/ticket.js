@@ -2,6 +2,10 @@ const { Ticket, Ticket_comment } = require("../models/Ticket");
 const TicketCategory = require("../models/TicketCategory");
 const User = require("../models/User");
 
+
+// @desc      Add support ticket
+// @route     POST /ticket
+// @access    Private
 exports.createTicket = async (req, res, next) => {
   const categoryType = await TicketCategory.findOne({
     category: req.body.category,
@@ -20,6 +24,10 @@ exports.createTicket = async (req, res, next) => {
   return res.status(201).json({ message: "Ticket created", status: true });
 };
 
+
+// @desc      Reply support ticket
+// @route     POST /ticket/reply_ticket
+// @access    Private
 exports.replyTicket = async (req, res, next) => {
   //Check for an existing ticket
   try {
@@ -59,6 +67,10 @@ exports.replyTicket = async (req, res, next) => {
   }
 };
 
+
+// @desc      Close support ticket
+// @route     POST /ticket/:ticketId
+// @access    Private
 exports.closeTicket = async (req, res, next) => {
   const getTicket = await Ticket.findOne({ _id: req.params.ticketId });
   if (!getTicket) {
@@ -73,6 +85,9 @@ exports.closeTicket = async (req, res, next) => {
     .json({ message: "ticket closed successfully", success: true });
 };
 
+// @desc      View all support ticket comments
+// @route     Get /ticket/:ticketId/replies
+// @access    Private
 exports.getTicketReplies = async (req, res, next) => {
   try {
     const ticket = await Ticket_comment.find({ ticketId: req.params.ticketId });
@@ -81,5 +96,31 @@ exports.getTicketReplies = async (req, res, next) => {
     }
   } catch (error) {
     console.log(error);
+  }
+};
+
+// @desc      View all open support ticket
+// @route     Get /ticket/open
+// @access    Private
+exports.getOpenTickets = async (req, res, next) => {
+  try {
+    const openTickets = await Ticket.find({
+      $or: [{ status: "NEW" }, { status: "IN_PROGRESS" }],
+    });
+    return res.json(openTickets);
+  } catch (error) {
+    return res.status(400).json({ message: "An error occured", error });
+  }
+};
+
+// @desc      View all closed support ticket
+// @route     Get /ticket/closed
+// @access    Private
+exports.getClosedTickets = async (req, res, next) => {
+  try {
+    const closedTickets = await Ticket.find({ status: "CLOSED" });
+    return res.json(closedTickets);
+  } catch (error) {
+    return res.status(400).json({ message: "An error occured", error });
   }
 };

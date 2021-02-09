@@ -1,5 +1,9 @@
 const Role = require("../models/Role");
 
+
+// @desc      Create user roles
+// @route     POST /role/create
+// @access    Private
 exports.createRole = async (req, res, next) => {
   try {
     await Role.create({name: req.body.name});
