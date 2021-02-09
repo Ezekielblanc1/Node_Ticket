@@ -63,7 +63,7 @@ exports.replyTicket = async (req, res, next) => {
       .status(200)
       .json({ message: "ticket reply sent successfully", success: true });
   } catch (error) {
-    console.log(error.message);
+    return res.status(400).json({ message: "An error occured", error });
   }
 };
 
@@ -92,10 +92,10 @@ exports.getTicketReplies = async (req, res, next) => {
   try {
     const ticket = await Ticket_comment.find({ ticketId: req.params.ticketId });
     if (ticket) {
-      res.status(200).json({ data: ticket });
+      return res.status(200).json({ data: ticket });
     }
   } catch (error) {
-    console.log(error);
+    return res.status(400).json({ message: "An error occured", error });
   }
 };
 
