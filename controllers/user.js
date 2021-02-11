@@ -3,7 +3,6 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Role = require("../models/Role");
 
-
 // @desc      Register user
 // @route     POST /user/signup
 // @access    Public
@@ -25,7 +24,7 @@ exports.signup = async (req, res) => {
       lastName,
       phone,
       accountType,
-      email
+      email,
     });
     if (req.body.roles) {
       const roles = await Role.find({
@@ -80,6 +79,9 @@ exports.login = async (req, res, next) => {
     );
     return res.status(200).send({ _id: user._id, token });
   } catch (error) {
-    console.log(error);
+    return res.status(400).json({
+      message: "Failed",
+      message: error.message,
+    });
   }
 };
