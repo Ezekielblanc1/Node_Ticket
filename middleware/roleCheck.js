@@ -2,70 +2,50 @@ const User = require("../models/User");
 const Role = require("../models/Role");
 
 const isAdmin = (req, res, next) => {
-  User.findById(req._id).exec((err, user) => {
-    if (err) {
-      res.status(500).send({ message: err });
-      return;
-    }
+  try {
+    //Get user data
+    const user = await User.findById(req._id);
 
-    Role.find(
-      {
-        _id: { $in: user.roles },
-      },
-      (err, roles) => {
-        if (err) {
-          res.status(500).send({ message: err });
-          return;
-        }
-
-        for (let i = 0; i < roles.length; i++) {
-          if (roles[i].name === "admin") {
-            next();
-            return;
-          }
-        }
-
-        res.status(403).send({ message: "Require Admin Role!" });
-        return;
+    //Check for roles associated with user
+    const roles = await Role.find({
+      _id: { $in: user.roles },
+    });
+    for (let i = 0; i < roles.length; i++) {
+      if (roles[i].name === "admin") {
+        return next();
       }
-    );
-  });
-};
-const isSupport = (req, res, next) => {
-  User.findById(req._id).exec((err, user) => {
-    if (err) {
-      res.status(500).send({ message: err });
-      return;
+      return res.status(403).send({ message: "Require Admin Role!" });
     }
+  } catch (error) {
+    return res.status(500).json({ message: "An error occured", error });
+  }
 
-    Role.find(
-      {
-        _id: { $in: user.roles },
-      },
-      (err, roles) => {
-        if (err) {
-          res.status(500).send({ message: err });
-          return;
-        }
-
-        for (let i = 0; i < roles.length; i++) {
-          if (roles[i].name === "support") {
-            next();
-            return;
-          }
-        }
-
-        res.status(403).send({ message: "Require Support Role!" });
-        return;
-      }
-    );
-  });
 };
 
+
+const isSupport = async (req, res, next) => {
+  try {
+    //Get user data
+    const user = await User.findById(req._id);
+
+    //Check for roles associated with user
+    const roles = await Role.find({
+      _id: { $in: user.roles },
+    });
+    for (let i = 0; i < roles.length; i++) {
+      if (roles[i].name === "support") {
+        return next();
+      }
+      return res.status(403).send({ message: "Require Support Role!" });
+    }
+  } catch (error) {
+    return res.status(500).json({ message: "An error occured", error });
+  }
+};
 
 const roleFunc = {
-    isAdmin,
-    isSupport
-}
+  isAdmin,
+  isSupport,
+};
 
-module.exports = roleFunc
+module.exports = roleFunc;
