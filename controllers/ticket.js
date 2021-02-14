@@ -2,7 +2,6 @@ const { Ticket, Ticket_comment } = require("../models/Ticket");
 const TicketCategory = require("../models/TicketCategory");
 const User = require("../models/User");
 
-
 // @desc      Add support ticket
 // @route     POST /ticket
 // @access    Private
@@ -23,7 +22,6 @@ exports.createTicket = async (req, res, next) => {
   });
   return res.status(201).json({ message: "Ticket created", status: true });
 };
-
 
 // @desc      Reply support ticket
 // @route     POST /ticket/reply_ticket
@@ -67,19 +65,18 @@ exports.replyTicket = async (req, res, next) => {
   }
 };
 
-
 // @desc      Close support ticket
 // @route     POST /ticket/:ticketId
 // @access    Private
 exports.closeTicket = async (req, res, next) => {
-  const getTicket = await Ticket.findOne({ _id: req.params.ticketId });
-  if (!getTicket) {
-    return res
-      .status(404)
-      .json({ message: "ticket not found", success: false });
-  }
-  getTicket.status = "CLOSE";
-  await Ticket.save();
+  await Ticket.updateOne(
+    { _id: req.params.ticketId },
+    {
+      $set: {
+        status: "CLOSE",
+      },
+    }
+  );
   return res
     .status(200)
     .json({ message: "ticket closed successfully", success: true });
