@@ -121,3 +121,34 @@ exports.getClosedTickets = async (req, res, next) => {
     return res.status(400).json({ message: "An error occured", error });
   }
 };
+
+// @desc      View all user support ticket
+// @route     Get /userId
+// @access    Private
+exports.getUserTicket = async (req, res, next) => {
+  try {
+    const getUserTickets = await Ticket.find({ userId: req._id });
+    return res.json(getUserTickets);
+  } catch (error) {
+    return res.status(400).json({ message: "An error occured", error });
+  }
+};
+
+
+
+// @desc      View all closed support ticket for last month
+// @route    Get /ticket/support/closed
+// @access    Private
+exports.getClosedTicketForLastMonth = async (req, res, next) => {
+  let getDate = new Date();
+  getDate.setMonth(d.getMonth() - 1);
+  const closedTickets = await Ticket.find({
+    $and: [{ status: "CLOSED" }, { createdAt: { $gte: getDate } }],
+  });
+  if (!closedTickets) {
+    return res
+      .status(404)
+      .json({ message: "An error occured while fetching ticket" });
+  }
+  return res.json(closedTickets);
+};
