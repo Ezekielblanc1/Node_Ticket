@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const Role = require("../models/Role");
 
-const isAdmin = (req, res, next) => {
+const isAdmin = async(req, res, next) => {
   try {
     //Get user data
     const user = await User.findById(req._id);

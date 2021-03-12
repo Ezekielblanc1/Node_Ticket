@@ -1,6 +1,7 @@
 const { Ticket, Ticket_comment } = require("../models/Ticket");
 const TicketCategory = require("../models/TicketCategory");
 const User = require("../models/User");
+const months = require("../util/month");
 
 // @desc      Add support ticket
 // @route     POST /ticket
@@ -134,17 +135,29 @@ exports.getUserTicket = async (req, res, next) => {
   }
 };
 
-
-
 // @desc      View all closed support ticket for last month
 // @route    Get /ticket/support/closed
 // @access    Private
-exports.getClosedTicketForLastMonth = async (req, res, next) => {
-  let getDate = new Date();
-  getDate.setMonth(d.getMonth() - 1);
-  const closedTickets = await Ticket.find({
-    $and: [{ status: "CLOSED" }, { createdAt: { $gte: getDate } }],
-  });
+exports.getClosedTicketForPreviousMonth = async (req, res, next) => {
+  let today = new Date();
+  let year = today.getFullYear();
+  let month = today.getMonth();
+  let closedTickets;
+  for (let i = 0; i < months.length; i++) {
+    if (months[i].id === month - 1) {
+      closedTickets = await Ticket.find({
+        $and: [
+          { status: "CLOSE" },
+          {
+            updatedAt: {
+              $gte: new Date(year, months[i].id, 1),
+              $lte: new Date(year, months[i].id, months[i].total),
+            },
+          },
+        ],
+      });
+    }
+  }
   if (!closedTickets) {
     return res
       .status(404)

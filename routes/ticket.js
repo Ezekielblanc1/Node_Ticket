@@ -5,7 +5,7 @@ const {
   getTicketReplies,
   getOpenTickets,
   getClosedTickets,
-  getClosedTicketForLastMonth,
+  getClosedTicketForPreviousMonth,
   getUserTicket
 } = require("../controllers/ticket");
 const checkAuth = require("../middleware/auth");
@@ -14,11 +14,11 @@ const router = require("express").Router();
 
 router.post("/create", checkAuth, createTicket);
 router.post("/reply_ticket", checkAuth, replyTicket);
-router.post("/:ticketId", [checkAuth, roleFunc.isSupport], closeTicket);
+router.post("/close/:ticketId", [checkAuth, roleFunc.isSupport], closeTicket);
 router.get("/:ticketId/replies", checkAuth, getTicketReplies);
 router.get("/open", [checkAuth, roleFunc.isSupport], getOpenTickets);
 router.get("/closed", [checkAuth, roleFunc.isSupport], getClosedTickets);
 router.get('/:userId', checkAuth, getUserTicket)
-router.get('/support/closed', [checkAuth, roleFunc.isSupport], getClosedTicketForLastMonth)
+router.get('/support/closed', [checkAuth, roleFunc.isSupport], getClosedTicketForPreviousMonth)
 
 module.exports = router;
